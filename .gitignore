@@ -2,6 +2,9 @@
 
 .env
 
+.audio
+.video
+
 # dependencies
 /node_modules
 /.pnp
