@@ -5,7 +5,7 @@
   "author": "Rafael Almendra",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/http/server.ts"
+    "dev": "tsx watch src/server.ts"
   },
   "keywords": [],
   "license": "ISC",

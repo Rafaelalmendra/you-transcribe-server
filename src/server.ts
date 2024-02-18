@@ -1,7 +1,10 @@
 import fastify from "fastify";
+import { audio } from "routes";
 
 const app = fastify();
 
-app.get("/", async (request, reply) => {
-  return { hello: "world" };
+app.register(audio);
+
+app.listen({ port: 3333 }).then(() => {
+  console.log("Server is running");
 });
