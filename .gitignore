@@ -2,8 +2,8 @@
 
 .env
 
-.audio
-.video
+.mp3
+.mp4
 
 # dependencies
 /node_modules
