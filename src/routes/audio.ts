@@ -3,7 +3,7 @@ import ytdl from "ytdl-core";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegStatic from "ffmpeg-static";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { openai } from "lib/openai";
+import { client } from "lib/assemblyai";
 
 type MyRequest = FastifyRequest<{
   Querystring: {
@@ -71,11 +71,13 @@ const audio = async (app: FastifyInstance) => {
       await downloadVideo();
       await convertToMp3();
 
-      const transcription = await openai.audio.transcriptions.create({
-        model: "whisper-1",
-        file: fs.createReadStream("audio.mp3"),
-        response_format: "json",
-      });
+      const params = {
+        audio: "audio.mp3",
+        summarization: true,
+        language_detection: true,
+      };
+
+      const transcription = await client.transcripts.transcribe(params as any);
 
       fs.unlink("audio.mp3", (error) => {
         if (error) {
