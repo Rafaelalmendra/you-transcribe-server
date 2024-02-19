@@ -11,8 +11,8 @@ type MyRequest = FastifyRequest<{
   };
 }>;
 
-const audio = async (app: FastifyInstance) => {
-  app.get("/audio", async (request: MyRequest, reply: FastifyReply) => {
+const transcription = async (app: FastifyInstance) => {
+  app.get("/transcription", async (request: MyRequest, reply: FastifyReply) => {
     const videoId = request.query.videoId as string;
     if (!videoId) {
       return reply.code(400).send("Missing videoId query parameter");
@@ -96,4 +96,4 @@ const audio = async (app: FastifyInstance) => {
   });
 };
 
-export { audio };
+export { transcription };
