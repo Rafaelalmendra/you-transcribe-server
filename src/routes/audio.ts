@@ -3,6 +3,7 @@ import ytdl from "ytdl-core";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegStatic from "ffmpeg-static";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { openai } from "lib/openai";
 
 type MyRequest = FastifyRequest<{
   Querystring: {
@@ -46,18 +47,7 @@ const audio = async (app: FastifyInstance) => {
 
         ffmpeg()
           .input("video.mp4")
-          .audioCodec("libmp3lame")
-          .outputOptions(
-            "-vn",
-            "-ar",
-            "44100",
-            "-ac",
-            "2",
-            "-ab",
-            "20k",
-            "-f",
-            "mp3"
-          )
+          .outputOptions("-ab", "20k")
           .saveToFile("audio.mp3")
           .on("end", () => {
             console.log("Conversion finished");
@@ -80,10 +70,23 @@ const audio = async (app: FastifyInstance) => {
     try {
       await downloadVideo();
       await convertToMp3();
-      const mp3Data = fs.readFileSync("audio.mp3");
-      reply.header("Content-Disposition", "attachment; filename=audio.mp3");
-      reply.header("Content-Type", "audio/mpeg");
-      return reply.send(mp3Data);
+
+      const transcription = await openai.audio.transcriptions.create({
+        model: "whisper-1",
+        file: fs.createReadStream("audio.mp3"),
+        response_format: "json",
+      });
+
+      fs.unlink("audio.mp3", (error) => {
+        if (error) {
+          console.error("Error deleting audio file", error);
+        } else {
+          console.log("Audio file deleted");
+        }
+      });
+
+      console.log(transcription);
+      return reply.send(transcription);
     } catch (error) {
       console.error(error);
       return reply.send(error);
