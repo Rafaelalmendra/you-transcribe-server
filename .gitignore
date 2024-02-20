@@ -5,6 +5,8 @@
 .mp3
 .mp4
 
+dist
+
 # dependencies
 /node_modules
 /.pnp
