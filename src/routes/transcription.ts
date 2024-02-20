@@ -31,16 +31,6 @@ const transcription = async (app: FastifyInstance) => {
 
       const transcription = await client.transcripts.transcribe(params);
 
-      fs.unlink("audio.mp3", (error) => {
-        if (!error) return console.log("Audio file deleted");
-        console.error("Error deleting audio file", error);
-      });
-
-      fs.unlink("video.mp4", (error) => {
-        if (!error) return console.log("Video file deleted");
-        console.error("Error deleting video file", error);
-      });
-
       if (transcription.status === "error") {
         console.error("Error transcribing audio", transcription);
         return reply.code(500).send("Error transcribing audio");
