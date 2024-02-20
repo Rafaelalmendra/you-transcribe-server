@@ -1,9 +1,8 @@
-import fs from "fs";
-import ytdl from "ytdl-core";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegStatic from "ffmpeg-static";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { client } from "lib/assemblyai";
+import { downloadVideo, convertVideoToMp3 } from "utils";
+import { client } from "lib";
+import fs from "fs";
+import { TranscribeParams } from "assemblyai";
 
 type MyRequest = FastifyRequest<{
   Querystring: {
@@ -13,79 +12,38 @@ type MyRequest = FastifyRequest<{
 
 const transcription = async (app: FastifyInstance) => {
   app.get("/transcription", async (request: MyRequest, reply: FastifyReply) => {
-    const videoId = request.query.videoId as string;
-    if (!videoId) {
-      return reply.code(400).send("Missing videoId query parameter");
-    }
-
-    const downloadVideo = () =>
-      new Promise((resolve, reject) => {
-        const videoURL = `https://www.youtube.com/watch?v=${videoId}`;
-
-        ytdl(videoURL, {
-          quality: "lowestaudio",
-          filter: "audioonly",
-        })
-          .pipe(fs.createWriteStream("video.mp4"))
-          .on("finish", () => {
-            console.log("Download finished");
-            resolve("Download finished");
-          })
-          .on("error", (error: Error) => {
-            console.error("Download failed", error);
-            reject(error);
-          });
-      });
-
-    const convertToMp3 = () =>
-      new Promise((resolve, reject) => {
-        if (ffmpegStatic === null) {
-          throw new Error("ffmpegStatic is null");
-        }
-
-        ffmpeg.setFfmpegPath(ffmpegStatic);
-
-        ffmpeg()
-          .input("video.mp4")
-          .outputOptions("-ab", "20k")
-          .saveToFile("audio.mp3")
-          .on("end", () => {
-            console.log("Conversion finished");
-            fs.unlink("video.mp4", (error) => {
-              if (error) {
-                console.error("Error deleting video file", error);
-                reject(error);
-              } else {
-                console.log("Video file deleted");
-                resolve("Conversion finished");
-              }
-            });
-          })
-          .on("error", (error: Error) => {
-            console.error("Conversion failed", error);
-            reject(error);
-          });
-      });
+    const videoId = request.query.videoId;
+    if (!videoId) return reply.code(400).send("Missing videoId parameter");
 
     try {
-      await downloadVideo();
-      await convertToMp3();
+      await downloadVideo(videoId);
+      await convertVideoToMp3();
 
-      const params = {
+      const params: TranscribeParams = {
         audio: "audio.mp3",
-        summarization: true,
         language_detection: true,
+        speaker_labels: true,
+        summarization: true,
+        summary_model: "informative",
+        summary_type: "bullets",
       };
 
-      const transcription = await client.transcripts.transcribe(params as any);
+      const transcription = await client.transcripts.transcribe(params);
 
       fs.unlink("audio.mp3", (error) => {
-        if (error) {
-          console.error("Error deleting audio file", error);
-        } else {
-          console.log("Audio file deleted");
-        }
+        if (!error) return console.log("Audio file deleted");
+        console.error("Error deleting audio file", error);
       });
+
+      fs.unlink("video.mp4", (error) => {
+        if (!error) return console.log("Video file deleted");
+        console.error("Error deleting video file", error);
+      });
+
+      if (transcription.status === "error") {
+        console.error("Error transcribing audio", transcription);
+        return reply.code(500).send("Error transcribing audio");
+      }
 
       console.log(transcription);
       return reply.send(transcription);
