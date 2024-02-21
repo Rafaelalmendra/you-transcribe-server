@@ -8,6 +8,13 @@ An API that allows you to download YouTube videos, convert them to MP3, automati
 
 - Node.js;
 
+## Technologies
+
+- Fastify;
+- Typescript
+- Assemblyai;
+- Zod;
+
 ## Setup
 
 - Clone the repository;
