@@ -11,7 +11,7 @@ const convertVideoToMp3 = () =>
 
     ffmpeg()
       .input("video.mp4")
-      .outputOptions("-ab", "60k")
+      .outputOptions("-ab", "20k")
       .saveToFile("audio.mp3")
       .on("end", () => {
         console.log("Conversion finished");

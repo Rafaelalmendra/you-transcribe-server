@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { downloadVideo, convertVideoToMp3 } from "utils";
 import { client } from "lib";
-import fs from "fs";
 import { TranscribeParams, TranscriptLanguageCode } from "assemblyai";
 
 type MyRequest = FastifyRequest<{
@@ -31,13 +30,16 @@ const transcription = async (app: FastifyInstance) => {
 
       const transcription = await client.transcripts.transcribe(params);
 
-      if (transcription.status === "error") {
-        console.error("Error transcribing audio", transcription);
-        return reply.code(500).send("Error transcribing audio");
+      const formattedTranscription = {
+        text: transcription.text || "No transcription available",
+      };
+
+      if (transcription.status === "completed") {
+        console.log(formattedTranscription);
+        return reply.send(formattedTranscription);
       }
 
-      console.log(transcription);
-      return reply.send(transcription);
+      return reply.code(500).send("Transcription failed");
     } catch (error) {
       console.error(error);
       return reply.send(error);
