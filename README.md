@@ -1,4 +1,4 @@
-<img src="./github/cover.png"/>
+<img src="./.github/cover.png"/>
 
 # About
 
@@ -26,5 +26,7 @@ Return transcription data
 #### Response body
 
 ```json
-{}
+{
+  "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s"
+}
 ```
