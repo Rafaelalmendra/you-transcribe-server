@@ -29,6 +29,10 @@ const transcription = async (app: FastifyInstance) => {
         file: fs.createReadStream("audio.mp3"),
       });
 
+      if (!transcription) {
+        return reply.code(500).send("Error creating transcription");
+      }
+
       return reply.send(transcription);
     } catch (error) {
       console.error(error);
