@@ -2,7 +2,7 @@ import "dotenv/config";
 import { z } from "zod";
 
 const envSchema = z.object({
-  ASSEMBLYAI_API_KEY: z.string(),
+  OPENAI_API_KEY: z.string(),
   PORT: z.coerce.number().default(3333),
 });
 

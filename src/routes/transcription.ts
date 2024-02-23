@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { downloadVideo, convertVideoToMp3 } from "utils";
-import { client } from "lib";
-import { TranscribeParams, TranscriptLanguageCode } from "assemblyai";
+import { openai } from "lib";
+import fs from "fs";
 
 type MyRequest = FastifyRequest<{
   Querystring: {
@@ -23,23 +23,13 @@ const transcription = async (app: FastifyInstance) => {
 
       const language = lang || "pt";
 
-      const params: TranscribeParams = {
-        audio: "audio.mp3",
-        language_code: language as TranscriptLanguageCode,
-      };
+      const transcription = await openai.audio.transcriptions.create({
+        language,
+        model: "whisper-1",
+        file: fs.createReadStream("audio.mp3"),
+      });
 
-      const transcription = await client.transcripts.transcribe(params);
-
-      const formattedTranscription = {
-        text: transcription.text || "No transcription available",
-      };
-
-      if (transcription.status === "completed") {
-        console.log(formattedTranscription);
-        return reply.send(formattedTranscription);
-      }
-
-      return reply.code(500).send("Transcription failed");
+      return reply.send(transcription);
     } catch (error) {
       console.error(error);
       return reply.send(error);
