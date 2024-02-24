@@ -33,8 +33,8 @@ dependencies:
     specifier: ^8.0.2
     version: 8.0.2(typescript@5.3.3)
   ytdl-core:
-    specifier: 4.4.1
-    version: 4.4.1
+    specifier: 4.11.5
+    version: 4.11.5
   zod:
     specifier: ^3.22.4
     version: 3.22.4
@@ -1907,9 +1907,9 @@ packages:
     engines: {node: '>= 14'}
     dev: false
 
-  /ytdl-core@4.4.1:
-    resolution: {integrity: sha512-VRqJ1pPEfIt7Lja2bKaTRqO47GfVbqhFfKqtmxU5Pp2BM0HUb0gVyf3wL9HlA+Vb4OblXs2MzSqWI8Fi1sSk4Q==}
-    engines: {node: '>=10'}
+  /ytdl-core@4.11.5:
+    resolution: {integrity: sha512-27LwsW4n4nyNviRCO1hmr8Wr5J1wLLMawHCQvH8Fk0hiRqrxuIu028WzbJetiYH28K8XDbeinYW4/wcHQD1EXA==}
+    engines: {node: '>=12'}
     dependencies:
       m3u8stream: 0.8.6
       miniget: 4.2.3
